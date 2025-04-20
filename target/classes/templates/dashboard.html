@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Hepta Fit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar {
+            background: #2c3e50;
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: white;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .sidebar .nav-link:hover {
+            background: #34495e;
+        }
+        .sidebar .nav-link.active {
+            background: #3498db;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .metric-card {
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .metric-card .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .progress {
+            height: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <h3 class="mb-4">Hepta Fit</h3>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="#dashboard">
+                        <i class="fas fa-home me-2"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="#fitness">
+                        <i class="fas fa-dumbbell me-2"></i> Fitness
+                    </a>
+                    <a class="nav-link" href="#nutrition">
+                        <i class="fas fa-apple-alt me-2"></i> Nutrition
+                    </a>
+                    <a class="nav-link" href="#mental-wellness">
+                        <i class="fas fa-brain me-2"></i> Mental Wellness
+                    </a>
+                    <a class="nav-link" href="#sleep">
+                        <i class="fas fa-moon me-2"></i> Sleep
+                    </a>
+                    <a class="nav-link" href="#profile">
+                        <i class="fas fa-user me-2"></i> Profile
+                    </a>
+                    <a class="nav-link" href="#" id="logout">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <div class="row mb-4">
+                    <div class="col">
+                        <h2>Welcome, <span id="userName">User</span>!</h2>
+                        <p class="text-muted">Here's your wellness overview</p>
+                    </div>
+                </div>
+
+                <!-- Metrics Overview -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="metric-card bg-primary text-white">
+                            <div class="icon"><i class="fas fa-fire"></i></div>
+                            <h5>Calories Burned</h5>
+                            <h3 id="caloriesBurned">0</h3>
+                            <p>Today's Activity</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card bg-success text-white">
+                            <div class="icon"><i class="fas fa-bed"></i></div>
+                            <h5>Sleep Quality</h5>
+                            <h3 id="sleepQuality">0%</h3>
+                            <p>Last Night</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card bg-info text-white">
+                            <div class="icon"><i class="fas fa-heart"></i></div>
+                            <h5>Mood</h5>
+                            <h3 id="moodRating">0</h3>
+                            <p>Today's Rating</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card bg-warning text-white">
+                            <div class="icon"><i class="fas fa-weight"></i></div>
+                            <h5>Weight Progress</h5>
+                            <h3 id="weightProgress">0%</h3>
+                            <p>Towards Goal</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Weekly Activity</h5>
+                                <canvas id="activityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Nutrition Breakdown</h5>
+                                <canvas id="nutritionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Recent Activities</h5>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Activity</th>
+                                                <th>Duration</th>
+                                                <th>Calories</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recentActivities">
+                                            <!-- Will be populated by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Check authentication
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        // Fetch user data
+        async function fetchUserData() {
+            try {
+                const response = await fetch('/api/users/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('userName').textContent = user.firstName;
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        }
+
+        // Fetch dashboard data
+        async function fetchDashboardData() {
+            try {
+                const response = await fetch('/api/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    updateDashboard(data);
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+            }
+        }
+
+        // Update dashboard with data
+        function updateDashboard(data) {
+            // Update metrics
+            document.getElementById('caloriesBurned').textContent = data.caloriesBurned;
+            document.getElementById('sleepQuality').textContent = `${data.sleepQuality}%`;
+            document.getElementById('moodRating').textContent = data.moodRating;
+            document.getElementById('weightProgress').textContent = `${data.weightProgress}%`;
+
+            // Update charts
+            updateActivityChart(data.activityData);
+            updateNutritionChart(data.nutritionData);
+
+            // Update recent activities
+            updateRecentActivities(data.recentActivities);
+        }
+
+        // Initialize charts
+        function updateActivityChart(data) {
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Calories Burned',
+                        data: data.values,
+                        borderColor: '#3498db',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function updateNutritionChart(data) {
+            const ctx = document.getElementById('nutritionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Protein', 'Carbs', 'Fats'],
+                    datasets: [{
+                        data: [data.protein, data.carbs, data.fats],
+                        backgroundColor: ['#3498db', '#2ecc71', '#f1c40f']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Update recent activities table
+        function updateRecentActivities(activities) {
+            const tbody = document.getElementById('recentActivities');
+            tbody.innerHTML = activities.map(activity => `
+                <tr>
+                    <td>${activity.date}</td>
+                    <td>${activity.name}</td>
+                    <td>${activity.duration} min</td>
+                    <td>${activity.calories} cal</td>
+                </tr>
+            `).join('');
+        }
+
+        // Logout
+        document.getElementById('logout').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        });
+
+        // Initialize dashboard
+        fetchUserData();
+        fetchDashboardData();
+    </script>
+</body>
+</html> 
