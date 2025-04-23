@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Hepta Fit</title>
+    <title>Workouts - Hepta Fit</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -21,6 +21,10 @@
         }
         .nav-link:hover {
             color: white !important;
+        }
+        .nav-link.active {
+            color: white !important;
+            font-weight: bold;
         }
         .dashboard-container {
             padding: 2rem;
@@ -53,15 +57,6 @@
         .workout-day:last-child {
             border-bottom: none;
         }
-        .meal-suggestion {
-            background: #f8f9fa;
-            padding: 0.5rem;
-            margin: 0.25rem 0;
-            border-radius: 5px;
-        }
-        .wellness-tip {
-            padding: 0.5rem 0;
-        }
     </style>
 </head>
 <body>
@@ -74,7 +69,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/workouts">Workouts</a>
+                        <a class="nav-link active" href="/workouts">Workouts</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/nutrition">Nutrition</a>
@@ -91,14 +86,13 @@
     </nav>
 
     <div class="container dashboard-container">
-        <h2 class="mb-4">Welcome to Your Personalized Wellness Journey!</h2>
+        <h2 class="mb-4">Your Personalized Workout Plan</h2>
         
         <div class="row">
-            <!-- Workout Plan -->
-            <div class="col-md-4">
+            <div class="col-lg-8">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">Your Workout Plan</h5>
+                        <h5 class="mb-0">Workout Schedule</h5>
                     </div>
                     <div class="card-body">
                         <p><strong>Intensity Level:</strong> <span th:text="${workoutPlan.intensity}">Moderate</span></p>
@@ -121,69 +115,19 @@
                 </div>
             </div>
             
-            <!-- Nutrition Plan -->
-            <div class="col-md-4">
+            <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">Your Nutrition Plan</h5>
+                        <h5 class="mb-0">Workout Tips</h5>
                     </div>
                     <div class="card-body">
-                        <div class="metric-value" th:text="${nutritionPlan.dailyCalories}">2000</div>
-                        <div class="metric-label">Daily Calories</div>
-                        
-                        <h6 class="mt-4 mb-3">Macronutrients</h6>
-                        <div class="row text-center">
-                            <div class="col-4">
-                                <div class="metric-value" th:text="${nutritionPlan.macronutrients.protein}">150</div>
-                                <div class="metric-label">Protein (g)</div>
-                            </div>
-                            <div class="col-4">
-                                <div class="metric-value" th:text="${nutritionPlan.macronutrients.carbs}">200</div>
-                                <div class="metric-label">Carbs (g)</div>
-                            </div>
-                            <div class="col-4">
-                                <div class="metric-value" th:text="${nutritionPlan.macronutrients.fats}">60</div>
-                                <div class="metric-label">Fats (g)</div>
-                            </div>
-                        </div>
-                        
-                        <h6 class="mt-4 mb-3">Meal Suggestions</h6>
-                        <div th:each="meal : ${nutritionPlan.mealPlan}" class="mb-3">
-                            <strong th:text="${meal.name}">Meal Name</strong>
-                            <div class="small text-muted" th:text="'~' + ${meal.calories} + ' calories'"></div>
-                            <div th:each="suggestion : ${meal.suggestions}" class="meal-suggestion">
-                                <span th:text="${suggestion}">Meal suggestion</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Wellness Plan -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Your Wellness Plan</h5>
-                    </div>
-                    <div class="card-body">
-                        <h6>Sleep Recommendations</h6>
-                        <div class="metric-value" th:text="${wellnessPlan.sleep.recommendedHours}">8</div>
-                        <div class="metric-label">Hours of Sleep</div>
-                        
-                        <h6 class="mt-4">Bedtime Routine</h6>
-                        <div th:each="routine : ${wellnessPlan.sleep.bedtimeRoutine}" class="wellness-tip">
-                            <span th:text="${routine}">Routine step</span>
-                        </div>
-                        
-                        <h6 class="mt-4">Mental Wellness Activities</h6>
-                        <div th:each="activity : ${wellnessPlan.mentalWellness.dailyActivities}" class="wellness-tip">
-                            <span th:text="${activity}">Activity</span>
-                        </div>
-                        
-                        <h6 class="mt-4">Stress Management</h6>
-                        <div th:each="technique : ${wellnessPlan.mentalWellness.stressManagement}" class="wellness-tip">
-                            <span th:text="${technique}">Technique</span>
-                        </div>
+                        <ul class="list-unstyled">
+                            <li class="mb-3">🎯 Always warm up before starting your workout</li>
+                            <li class="mb-3">💧 Stay hydrated throughout your session</li>
+                            <li class="mb-3">🕐 Rest between sets as indicated</li>
+                            <li class="mb-3">📝 Track your progress and increase weights gradually</li>
+                            <li class="mb-3">🧘‍♂️ Don't forget to cool down and stretch after</li>
+                        </ul>
                     </div>
                 </div>
             </div>

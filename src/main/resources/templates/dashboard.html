@@ -111,9 +111,9 @@
                             <div class="mt-2">
                                 <div th:each="exercise : ${workout.exercises}" class="small">
                                     <strong th:text="${exercise.name}">Exercise Name</strong>
-                                    <span th:if="${exercise.sets}" th:text="'- ' + ${exercise.sets} + ' sets'"></span>
-                                    <span th:if="${exercise.reps}" th:text="'- ' + ${exercise.reps} + ' reps'"></span>
-                                    <span th:if="${exercise.rest}" th:text="'- ' + ${exercise.rest} + ' rest'"></span>
+                                    <span th:if="${exercise.get('sets')}" th:text="'- ' + ${exercise.get('sets')} + ' sets'"></span>
+                                    <span th:if="${exercise.get('reps')}" th:text="'- ' + ${exercise.get('reps')} + ' reps'"></span>
+                                    <span th:if="${exercise.get('rest')}" th:text="'- ' + ${exercise.get('rest')} + ' rest'"></span>
                                 </div>
                             </div>
                         </div>

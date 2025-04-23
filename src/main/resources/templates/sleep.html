@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep - Hepta Fit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        .nav-link:hover {
+            color: white !important;
+        }
+        .nav-link.active {
+            color: white !important;
+            font-weight: bold;
+        }
+        .dashboard-container {
+            padding: 2rem;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 1rem;
+        }
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #000DFF;
+        }
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .routine-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 5px;
+            border-left: 4px solid #000DFF;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">Hepta Fit</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/workouts">Workouts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/nutrition">Nutrition</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/mental-wellness">Mental Wellness</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/sleep">Sleep</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container dashboard-container">
+        <h2 class="mb-4">Your Sleep Plan</h2>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Sleep Recommendations</h5>
+                    </div>
+                    <div class="card-body text-center py-4">
+                        <div class="metric-value" th:text="${sleep.recommendedHours}">8</div>
+                        <div class="metric-label">Hours of Sleep Recommended</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Bedtime Routine</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:each="routine : ${sleep.bedtimeRoutine}" class="routine-item">
+                            <h6 th:text="${routine}">Routine Step</h6>
+                            <p class="mb-0 text-muted small">Follow this routine consistently every night for better sleep quality.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Sleep Tips</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-3">🌙 Keep your bedroom dark and cool</li>
+                            <li class="mb-3">⏰ Go to bed at the same time daily</li>
+                            <li class="mb-3">📱 Avoid screens before bedtime</li>
+                            <li class="mb-3">☕ Limit caffeine after 2 PM</li>
+                            <li class="mb-3">🧘‍♂️ Practice relaxation before bed</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Sleep Environment</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Optimal Conditions</h6>
+                        <ul class="small">
+                            <li>Temperature: 65-68°F (18-20°C)</li>
+                            <li>Humidity: 30-50%</li>
+                            <li>Noise Level: Below 30 dB</li>
+                            <li>Light Level: As dark as possible</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
