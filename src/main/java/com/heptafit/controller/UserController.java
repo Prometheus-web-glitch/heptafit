@@ -10,12 +10,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/users")
 public class UserController {
     
-    private final UserService userService;
-    
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private UserService userService;
     
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
@@ -23,7 +19,7 @@ public class UserController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -31,8 +27,20 @@ public class UserController {
     
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
-        user.setId(id);
-        return ResponseEntity.ok(userService.updateUser(user));
+        User updatedUser = userService.updateUserProfile(id, user);
+        if (updatedUser != null) {
+            return ResponseEntity.ok(updatedUser);
+        }
+        return ResponseEntity.notFound().build();
+    }
+    
+    @PostMapping("/{id}/calculate-metrics")
+    public ResponseEntity<User> calculateUserMetrics(@PathVariable Long id) {
+        User user = userService.calculateUserMetrics(id);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.notFound().build();
     }
     
     @GetMapping("/{id}/metrics")

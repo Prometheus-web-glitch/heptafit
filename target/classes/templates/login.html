@@ -43,6 +43,12 @@
             text-align: center;
             margin-top: 1rem;
         }
+        .error-message {
+            color: #dc3545;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -50,13 +56,15 @@
         <h2 class="login-title">Welcome Back</h2>
         <form id="loginForm">
             <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" name="username" required>
+                <label for="username" class="form-label">Username (not email)</label>
+                <input type="text" class="form-control" id="username" name="username" required 
+                       placeholder="Enter your username">
             </div>
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
+            <div id="errorMessage" class="error-message"></div>
             <button type="submit" class="btn btn-primary w-100">Login</button>
             <div class="register-link">
                 <p>Don't have an account? <a href="/register">Register</a></p>
@@ -71,6 +79,7 @@
             
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
             
             try {
                 const response = await fetch('/api/auth/login', {
@@ -82,15 +91,18 @@
                 });
                 
                 if (response.ok) {
-                    const token = await response.text();
-                    localStorage.setItem('token', token);
+                    const data = await response.json();
+                    localStorage.setItem('token', data.token);
                     window.location.href = '/dashboard';
                 } else {
-                    alert('Login failed. Please check your credentials.');
+                    const errorData = await response.json();
+                    errorMessage.textContent = errorData.message || 'Login failed. Please check your credentials.';
+                    errorMessage.style.display = 'block';
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred during login.');
+                errorMessage.textContent = 'An error occurred during login.';
+                errorMessage.style.display = 'block';
             }
         });
     </script>

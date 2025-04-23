@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,6 +16,7 @@ import java.util.Set;
         @UniqueConstraint(columnNames = "username"),
         @UniqueConstraint(columnNames = "email")
     })
+@Data
 public class User {
     
     @Id
@@ -21,8 +24,16 @@ public class User {
     private Long id;
     
     @NotBlank
-    @Size(max = 20)
+    @Size(max = 50)
     private String username;
+    
+    @NotBlank
+    @Size(max = 50)
+    private String firstName;
+    
+    @NotBlank
+    @Size(max = 50)
+    private String lastName;
     
     @NotBlank
     @Size(max = 50)
@@ -33,15 +44,11 @@ public class User {
     @Size(max = 120)
     private String password;
     
-    @NotBlank
-    @Size(max = 50)
-    private String firstName;
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
     
-    @NotBlank
-    @Size(max = 50)
-    private String lastName;
-    
-    private String dateOfBirth;
+    @Transient
+    private String dateOfBirthString;
     
     private String gender;
     
@@ -51,42 +58,135 @@ public class User {
     
     private Double targetWeight;
     
-    private String activityLevel;
-    
     private String weightGoal;
     
-    @Column(name = "daily_calorie_needs")
-    private int dailyCalorieNeeds;
+    private String activityLevel;
     
-    @Column(name = "protein_goal")
-    private int proteinGoal;
+    private String dietaryPreferences;
     
-    @Column(name = "carbs_goal")
-    private int carbsGoal;
+    private String fitnessGoals;
     
-    @Column(name = "fats_goal")
-    private int fatsGoal;
+    private Double bmi;
     
-    @Column(name = "bmi")
-    private double bmi;
+    private Integer dailyCalorieNeeds;
     
+    private Integer proteinGoal;
+    
+    private Integer carbsGoal;
+    
+    private Integer fatsGoal;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
     
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<MealPlan> mealPlans = new HashSet<>();
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<WorkoutPlan> workoutPlans = new HashSet<>();
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<MeditationSession> meditationSessions = new HashSet<>();
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<SleepRecord> sleepRecords = new HashSet<>();
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<ProgressTracking> progressTrackings = new HashSet<>();
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<Recommendation> recommendations = new HashSet<>();
+    
     public User() {
     }
     
-    public User(String username, String email, String password, String firstName, String lastName) {
+    public User(String username, String firstName, String lastName, String email, String password) {
         this.username = username;
-        this.email = email;
-        this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.email = email;
+        this.password = password;
     }
-    
+
+    public int calculateAge() {
+        if (dateOfBirth == null) {
+            return 0;
+        }
+        return Period.between(dateOfBirth, LocalDate.now()).getYears();
+    }
+
+    // Calculate BMI
+    public void calculateBmi() {
+        if (height != null && weight != null && height > 0) {
+            double heightInMeters = height / 100.0;
+            this.bmi = weight / (heightInMeters * heightInMeters);
+        }
+    }
+
+    // Calculate daily calorie needs based on Mifflin-St Jeor Equation
+    public void calculateDailyCalorieNeeds() {
+        if (weight != null && height != null && dateOfBirth != null) {
+            int age = calculateAge();
+            double bmr;
+            
+            if (gender != null && gender.equalsIgnoreCase("male")) {
+                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+            } else {
+                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+            }
+            
+            // Adjust for activity level
+            double activityMultiplier = 1.2; // Default sedentary
+            if (activityLevel != null) {
+                switch (activityLevel.toLowerCase()) {
+                    case "lightly active":
+                        activityMultiplier = 1.375;
+                        break;
+                    case "moderately active":
+                        activityMultiplier = 1.55;
+                        break;
+                    case "very active":
+                        activityMultiplier = 1.725;
+                        break;
+                    case "extra active":
+                        activityMultiplier = 1.9;
+                        break;
+                }
+            }
+            
+            this.dailyCalorieNeeds = (int) (bmr * activityMultiplier);
+            
+            // Adjust for weight goal
+            if (weightGoal != null) {
+                switch (weightGoal.toLowerCase()) {
+                    case "lose weight":
+                        this.dailyCalorieNeeds -= 500;
+                        break;
+                    case "gain weight":
+                        this.dailyCalorieNeeds += 500;
+                        break;
+                }
+            }
+        }
+    }
+
+    // Calculate macronutrient goals based on daily calorie needs
+    public void calculateMacronutrientGoals() {
+        if (dailyCalorieNeeds != null) {
+            // Protein: 25% of calories (4 calories per gram)
+            this.proteinGoal = (int) ((dailyCalorieNeeds * 0.25) / 4);
+            
+            // Fats: 30% of calories (9 calories per gram)
+            this.fatsGoal = (int) ((dailyCalorieNeeds * 0.30) / 9);
+            
+            // Carbs: 45% of calories (4 calories per gram)
+            this.carbsGoal = (int) ((dailyCalorieNeeds * 0.45) / 4);
+        }
+    }
+
     // Getters and Setters
     public Long getId() {
         return id;
@@ -102,22 +202,6 @@ public class User {
     
     public void setUsername(String username) {
         this.username = username;
-    }
-    
-    public String getEmail() {
-        return email;
-    }
-    
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    
-    public String getPassword() {
-        return password;
-    }
-    
-    public void setPassword(String password) {
-        this.password = password;
     }
     
     public String getFirstName() {
@@ -136,12 +220,39 @@ public class User {
         this.lastName = lastName;
     }
     
-    public String getDateOfBirth() {
+    public String getEmail() {
+        return email;
+    }
+    
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    public String getPassword() {
+        return password;
+    }
+    
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
     
-    public void setDateOfBirth(String dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+    
+    public String getDateOfBirthString() {
+        return dateOfBirthString;
+    }
+    
+    public void setDateOfBirthString(String dateOfBirthString) {
+        this.dateOfBirthString = dateOfBirthString;
+        if (dateOfBirthString != null) {
+            this.dateOfBirth = LocalDate.parse(dateOfBirthString);
+        }
     }
     
     public String getGender() {
@@ -176,14 +287,6 @@ public class User {
         this.targetWeight = targetWeight;
     }
     
-    public String getActivityLevel() {
-        return activityLevel;
-    }
-    
-    public void setActivityLevel(String activityLevel) {
-        this.activityLevel = activityLevel;
-    }
-    
     public String getWeightGoal() {
         return weightGoal;
     }
@@ -192,44 +295,48 @@ public class User {
         this.weightGoal = weightGoal;
     }
     
-    public int getDailyCalorieNeeds() {
-        return dailyCalorieNeeds;
+    public String getActivityLevel() {
+        return activityLevel;
     }
     
-    public void setDailyCalorieNeeds(int dailyCalorieNeeds) {
-        this.dailyCalorieNeeds = dailyCalorieNeeds;
+    public void setActivityLevel(String activityLevel) {
+        this.activityLevel = activityLevel;
     }
     
-    public int getProteinGoal() {
-        return proteinGoal;
+    public String getDietaryPreferences() {
+        return dietaryPreferences;
     }
     
-    public void setProteinGoal(int proteinGoal) {
-        this.proteinGoal = proteinGoal;
+    public void setDietaryPreferences(String dietaryPreferences) {
+        this.dietaryPreferences = dietaryPreferences;
     }
     
-    public int getCarbsGoal() {
-        return carbsGoal;
+    public String getFitnessGoals() {
+        return fitnessGoals;
     }
     
-    public void setCarbsGoal(int carbsGoal) {
-        this.carbsGoal = carbsGoal;
+    public void setFitnessGoals(String fitnessGoals) {
+        this.fitnessGoals = fitnessGoals;
     }
     
-    public int getFatsGoal() {
-        return fatsGoal;
-    }
-    
-    public void setFatsGoal(int fatsGoal) {
-        this.fatsGoal = fatsGoal;
-    }
-    
-    public double getBmi() {
+    public Double getBmi() {
         return bmi;
     }
     
-    public void setBmi(double bmi) {
-        this.bmi = bmi;
+    public Integer getDailyCalorieNeeds() {
+        return dailyCalorieNeeds;
+    }
+    
+    public Integer getProteinGoal() {
+        return proteinGoal;
+    }
+    
+    public Integer getCarbsGoal() {
+        return carbsGoal;
+    }
+    
+    public Integer getFatsGoal() {
+        return fatsGoal;
     }
     
     public Set<Role> getRoles() {
@@ -238,5 +345,25 @@ public class User {
     
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public void setBmi(Double bmi) {
+        this.bmi = bmi;
+    }
+
+    public void setDailyCalorieNeeds(Integer dailyCalorieNeeds) {
+        this.dailyCalorieNeeds = dailyCalorieNeeds;
+    }
+
+    public void setProteinGoal(Integer proteinGoal) {
+        this.proteinGoal = proteinGoal;
+    }
+
+    public void setCarbsGoal(Integer carbsGoal) {
+        this.carbsGoal = carbsGoal;
+    }
+
+    public void setFatsGoal(Integer fatsGoal) {
+        this.fatsGoal = fatsGoal;
     }
 } 

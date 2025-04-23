@@ -28,19 +28,12 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/register", "/login", "/", "/h2-console/**").permitAll()
-                .requestMatchers("/api/users/**").authenticated()
-                .requestMatchers("/api/workouts/**").authenticated()
-                .requestMatchers("/api/nutrition/**").authenticated()
-                .requestMatchers("/api/mental-wellness/**").authenticated()
-                .requestMatchers("/api/sleep/**").authenticated()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        
+            );
+    
         return http.build();
     }
     
