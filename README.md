@@ -108,6 +108,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🙏 Acknowledgments
 
+- Dr. Jacqueline Jackson 
 - Spring Boot team for the excellent framework
 - Bootstrap team for the responsive UI components
 - The open-source community for inspiration and tools 
